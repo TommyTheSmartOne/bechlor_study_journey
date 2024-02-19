@@ -15,9 +15,12 @@ Scheduling problem and so on. The algorithm will proceed in the following steps
 9. repeat the process from 7 to 10 until reaches num of iteration
 '''
 from Ant import Ant
-
+from Route import Route
 
 ant_1 = Ant('Tommy')
 ant_1.append_route_traveled_per_iteration('China')
-ant_1.clear_route_traveled_per_iteration()
 print(ant_1)
+
+route_1 = Route('China_to_India', 100, 0.5)
+route_1.append_ant_traveled_on_this_route_per_iteration(ant_1.get_name())
+print(route_1)

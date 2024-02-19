@@ -12,5 +12,11 @@ class Ant:
     def clear_route_traveled_per_iteration(self):
         self._route_traveled_per_iteration.clear()
 
+    def get_route_traveled_per_iteration(self):
+        return self._route_traveled_per_iteration
+
+    def get_name(self):
+        return self._name
+
     def __str__(self):
         return self._name + '' + str(self._route_traveled_per_iteration)
