@@ -226,6 +226,6 @@ def is_centroids_still_changing(centroid, centroid_after_one_iteration):
     return not np.all(np.equal(centroid, centroid_after_one_iteration))
 
 
-k = 100
+k = 3
 optimized_groups = optimize_centroids(1000)
 print(optimized_groups)  # obtain the results
