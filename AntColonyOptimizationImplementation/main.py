@@ -155,6 +155,7 @@ def calc_iteration_distance():
 def compare_iterations():
     global current_iteration_distance, best_iteration_distance, best_iteration_path
     current_iteration_distance = calc_iteration_distance()
+    print('current iteration distance: ', current_iteration_distance, 'best iteration distance: ', best_iteration_distance)
     if current_iteration_distance < best_iteration_distance or best_iteration_distance == 0:
         best_iteration_path = ant.get_city_traveled_per_iteration().copy()
         best_iteration_distance = current_iteration_distance
@@ -163,14 +164,13 @@ def compare_iterations():
 # Here input the data of cities, for the format of the data see example "distance_of_5_cities"
 # df = np.array(pd.read_csv("distance_of_42_cities.csv"))
 df = randomly_generate_cities(50)
-print(df)
 
 
 # constant term
 PHEROMONE_ANT_RELEASED = 0.2
 EVAPORATION_COEFICIENT = 0.6  # This num must be greater than 0 but smaller than 1, the larger it is the more
 # pheromone evaporate per iteration
-ITERATION_NUM = 10000
+ITERATION_NUM = 100
 INI_PHEROMONE_LEVEL = 0.2
 counter = 0
 
@@ -201,11 +201,6 @@ while counter < ITERATION_NUM:
         # ini_city
         proceed_the_ant()
         compare_iterations()
-
-        # print("current iteration distance: " + str(current_iteration_distance))
-        # print("best iteration distance: " + str(best_iteration_distance))
-        # print("path this iteration: " + str(ant.get_city_traveled_per_iteration()))
-        # print("path best iteration: " + str(best_iteration_path))
         for cities in city_colony:  # clear data in cities so we can start a new iteration
             cities.set_traveled_state(False)
     # after one colony of ants proceed we now update pheromone level
@@ -216,6 +211,5 @@ while counter < ITERATION_NUM:
     counter += 1
     pbar.update(1)
 pbar.close()
-print(best_iteration_path)
 print("path best iteration: " + str(best_iteration_path))
 print("best iteration distance: " + str(best_iteration_distance))
