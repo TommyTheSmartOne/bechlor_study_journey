@@ -16,14 +16,24 @@ Scheduling problem and so on. The algorithm will proceed in the following steps
 '''
 from Ant import Ant
 from City import City
-import random as rd
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-df = np.array(pd.read_csv("distance_of_5_cities.csv"))
+
+def randomly_generate_cities(N: int):
+    "Make a set of n cities, each with random coordinates within a (width x height) rectangle."
+    city_matrix = []
+    b = np.random.randint(1, 100, size=(N, N))
+    b_symm = (b + b.T) / 2
+    counter = 0
+    for i in range(len(b_symm)):
+        b_symm[i][counter] = 0
+        counter += 1
+    return b_symm
+
+
+
 
 
 # reading data from csv file and transform it to numpy array
@@ -126,7 +136,8 @@ def update_pheromone_on_one_route(new_pheromone_level, desti_city: City, ini_cit
 
 
 def calc_pheromone_level(key: City) -> float:
-    pheromone_level = (1 - EVAPORATION_COEFICIENT) * INI_PHEROMONE_LEVEL + key.get_ant_traveled() * PHEROMONE_ANT_RELEASED
+    pheromone_level = (
+                              1 - EVAPORATION_COEFICIENT) * INI_PHEROMONE_LEVEL + key.get_ant_traveled() * PHEROMONE_ANT_RELEASED
     return pheromone_level
 
 
@@ -149,19 +160,17 @@ def compare_iterations():
         best_iteration_distance = current_iteration_distance
 
 
-# x = [2.3, 4.5, 3, 7, 6.5, 4, 5.3]
-# y = [5, 4, 7, 5, 5.3, 5.5, 6.2]
-# n = np.arange(len(x))
-# plt.scatter(x, y, c='r')
-# for i, txt in enumerate(n):
-#     plt.annotate(txt, (x[i], y[i]))
-# plt.show()
+# Here input the data of cities, for the format of the data see example "distance_of_5_cities"
+# df = np.array(pd.read_csv("distance_of_42_cities.csv"))
+df = randomly_generate_cities(50)
+print(df)
+
 
 # constant term
 PHEROMONE_ANT_RELEASED = 0.2
 EVAPORATION_COEFICIENT = 0.6  # This num must be greater than 0 but smaller than 1, the larger it is the more
 # pheromone evaporate per iteration
-ITERATION_NUM = 5
+ITERATION_NUM = 10000
 INI_PHEROMONE_LEVEL = 0.2
 counter = 0
 
@@ -170,6 +179,7 @@ city_colony = create_cities(INI_PHEROMONE_LEVEL)
 best_iteration_path = []
 best_iteration_distance = 0
 current_iteration_distance = 0
+pbar = tqdm(total=ITERATION_NUM)
 while counter < ITERATION_NUM:
     for ants in range(0, len(df)):
         ini_city = np.random.randint(5)
@@ -191,10 +201,11 @@ while counter < ITERATION_NUM:
         # ini_city
         proceed_the_ant()
         compare_iterations()
-        print("current iteration path: " + str(current_iteration_distance))
-        print("best iteration distance: " + str(best_iteration_distance))
-        print("city traveled this iteration: " + str(ant.get_city_traveled_per_iteration()))
-        print("city traveled in the best iteration: " + str(best_iteration_path))
+
+        # print("current iteration distance: " + str(current_iteration_distance))
+        # print("best iteration distance: " + str(best_iteration_distance))
+        # print("path this iteration: " + str(ant.get_city_traveled_per_iteration()))
+        # print("path best iteration: " + str(best_iteration_path))
         for cities in city_colony:  # clear data in cities so we can start a new iteration
             cities.set_traveled_state(False)
     # after one colony of ants proceed we now update pheromone level
@@ -202,5 +213,9 @@ while counter < ITERATION_NUM:
         for keys in list(cities.get_adjacent_city_distance_pheromone_level_dic().keys()):
             update_pheromone_on_one_route(calc_pheromone_level(keys), keys, cities)
         cities.clear_ant_traveled()
-    # print('goal: ' + '0,2,1,4,3,0')
     counter += 1
+    pbar.update(1)
+pbar.close()
+print(best_iteration_path)
+print("path best iteration: " + str(best_iteration_path))
+print("best iteration distance: " + str(best_iteration_distance))
