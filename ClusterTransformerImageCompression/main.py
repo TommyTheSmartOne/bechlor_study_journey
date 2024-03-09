@@ -19,4 +19,25 @@ Transformer function:
     centroid, if the output y is smaller than 0.5, we can consider the value belongs to the group such that centroid is
     0.
 '''
+import numpy as np
+import cv2 as cv2
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 
+
+def preprocess_data(image_address):
+    '''
+    This function read a image and convert it to a 3d array, each 2d array contains each row of pixel in the image, each
+    1d array within the 2d array contains data related to its RGB data
+    :return:
+    '''
+    img = cv2.imread(image_address)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    # Scaling the image so that the values are in the range of 0 to 1
+    img = img / 255
+    return img
+
+
+# We now obtained a 3d array with RBG colors corresponding to each pixel
+image_arr = preprocess_data("bird.png")
