@@ -91,7 +91,7 @@ def find_closest_centroid(centroid_list):
     return centroid_and_distance_dict, centroid_and_index_dict
 
 
-def compute_centroids(centroid_list, centroid_distance_pair, centroid_index_pair):
+def compute_centroids(centroid_list, centroid_index_pair):
     '''
     This function compute the new centroids based on the group list we obtained from previous function, we will first sum
     up the total in one group, then devide by the number of data point belongs to that specific centroid thus obtain the
@@ -102,38 +102,23 @@ def compute_centroids(centroid_list, centroid_distance_pair, centroid_index_pair
     :param centroid_index_pair:
     :return:
     '''
-    group_mean_distance_list = []
+    group_mean_list = []
     for i in range(len(centroid_list)):
-        sum = 0
-        for j in range(len(centroid_distance_pair[i])):
-            sum += centroid_distance_pair[i][j]
-        sum /= len(centroid_distance_pair[i])
-        group_mean_distance_list.append(sum)
-    return locate_closest_datapoint_to_new_centroid(group_mean_distance_list, centroid_index_pair,
-                                                    centroid_distance_pair)
+        R_sum = 0
+        G_sum = 0
+        B_sum = 0
+        for j in range (len(centroid_index_pair[i])):
+            R_sum += image_arr[centroid_index_pair[i][j][0]][centroid_index_pair[i][j][1]][0]
+            G_sum += image_arr[centroid_index_pair[i][j][0]][centroid_index_pair[i][j][1]][1]
+            B_sum += image_arr[centroid_index_pair[i][j][0]][centroid_index_pair[i][j][1]][2]
+        R_sum /= len(centroid_index_pair[i])
+        G_sum /= len(centroid_index_pair[i])
+        B_sum /= len(centroid_index_pair[i])
+        group_mean_list.append([R_sum, G_sum, B_sum])
+    return group_mean_list
 
 
-def locate_closest_datapoint_to_new_centroid(group_mean_distance_list, centroid_index_pair, centroid_distance_pair):
-    '''
-    In a group X with centroid x, we calculated the distance from each datapoint s to x along with the mean distance. This
-    function allocate the s1 such that the distance d between s1 and x share the most similarity with the mean distance
-    compare to the distance between other s and x
-    :param group_mean_distance_list:
-    :param centroid_index_pair:
-    :param centroid_distance_pair:
-    :return:
-    '''
-    closest_data_points_list = []
-    for i in range(len(group_mean_distance_list)):
-        distance = group_mean_distance_list[i]
-        for j in range(len(centroid_distance_pair[i])):
-            differences = np.abs(group_mean_distance_list[i] - centroid_distance_pair[i][j])  # find the differences
-            # between mean distance and data points
-            if differences < distance:
-                distance = differences
-                closest_data_points = image_arr[centroid_index_pair[i][j][0]][centroid_index_pair[i][j][1]]
-        closest_data_points_list.append(closest_data_points)
-    return closest_data_points_list
+
 
 
 def if_centroid_shift(previous_centroids_list, current_centroids_list):
@@ -155,11 +140,11 @@ def run_kMean():
     counter = 0
     previous_centroid_list = kMean_ini_centroids(image_arr, NUM_OF_CENTROID)
     centroid_distance_pair, centroid_index_pair = find_closest_centroid(previous_centroid_list)
-    current_centroid_list = compute_centroids(previous_centroid_list, centroid_distance_pair, centroid_index_pair)
+    current_centroid_list = compute_centroids(previous_centroid_list , centroid_index_pair)
     while if_centroid_shift(previous_centroid_list, current_centroid_list) and counter < NUM_OF_ITERATION:
         previous_centroid_list = current_centroid_list
         centroid_distance_pair, centroid_index_pair = find_closest_centroid(previous_centroid_list)
-        current_centroid_list = compute_centroids(previous_centroid_list, centroid_distance_pair, centroid_index_pair)
+        current_centroid_list = compute_centroids(previous_centroid_list, centroid_index_pair)
         counter += 1
         pbar.update(1)
     pbar.close()
@@ -183,8 +168,8 @@ def compress_image():
 
 
 #  Constant initialization and function call
-image_arr = preprocess_data("owl.png")
-NUM_OF_ITERATION = 100
-NUM_OF_CENTROID = 5
+image_arr = preprocess_data("lion.png")
+NUM_OF_ITERATION = 2
+NUM_OF_CENTROID = 2
 final_centroid_index_pair, final_centroid = run_kMean()
 compress_image()

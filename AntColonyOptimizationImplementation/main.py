@@ -19,6 +19,18 @@ from City import City
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import re as re
+import sys
+
+def data_process_for_42_cities(np_two_D_array):
+    result_array = []
+    for sub_np_array in np_two_D_array:
+        sub_np_array = re.split('\s+', sub_np_array[0])
+        sub_np_array.pop(0)
+        sub_np_array = np.array(sub_np_array)
+        sub_np_array = sub_np_array.astype(int).tolist()
+        result_array.append(sub_np_array)
+    return result_array
 
 
 def randomly_generate_cities(N: int):
@@ -31,8 +43,6 @@ def randomly_generate_cities(N: int):
         b_symm[i][counter] = 0
         counter += 1
     return b_symm
-
-
 
 
 
@@ -49,7 +59,7 @@ def create_cities(initial_pheromone_level):
     :return:
     '''
     cities = []
-    for city in range(0, len(df)):
+    for city in range(0, len(df)):  # create cities depends on num given in df and append in a list
         cities.append(City(city))
     for city in range(0, len(cities)):
         for adjacent_cities in range(0, len(df[city])):
@@ -77,12 +87,12 @@ def calc_probability_from_one_city_to_adjacency_cities():
     for key in current_city.get_adjacent_city_distance_pheromone_level_dic().keys():
         if not key.get_is_traveled():  # if the given ant hasn't traveled this city yet
             total_multiple += calc_desirability(
-                current_city.get_adjacent_city_distance_pheromone_level_dic()[key][0]) \
-                              * current_city.get_adjacent_city_distance_pheromone_level_dic()[key][1]
+                (current_city.get_adjacent_city_distance_pheromone_level_dic()[key][0]) ** ALPHA) \
+                              * (current_city.get_adjacent_city_distance_pheromone_level_dic()[key][1] ** BETA)
             # refer to the formula
             probability_list[key.get_name()] = \
-                calc_desirability(current_city.get_adjacent_city_distance_pheromone_level_dic()[key][0]) \
-                * current_city.get_adjacent_city_distance_pheromone_level_dic()[key][1]
+                (calc_desirability(current_city.get_adjacent_city_distance_pheromone_level_dic()[key][0]) ** ALPHA) \
+                * (current_city.get_adjacent_city_distance_pheromone_level_dic()[key][1] ** BETA)
         # append each adjacent cities probability to a dictionary, where the key is the name of the route
         # and the value is the numerator
 
@@ -163,16 +173,20 @@ def compare_iterations():
 
 # Here input the data of cities, for the format of the data see example "distance_of_5_cities"
 # df = np.array(pd.read_csv("distance_of_42_cities.csv"))
-df = randomly_generate_cities(50)
+# df = randomly_generate_cities(50)
+# df = data_process_for_42_cities(df)
+df = np.array(pd.read_csv("distance_of_5_cities.csv"))
 
 
 # constant term
-PHEROMONE_ANT_RELEASED = 0.2
+PHEROMONE_ANT_RELEASED = 1
 EVAPORATION_COEFICIENT = 0.6  # This num must be greater than 0 but smaller than 1, the larger it is the more
 # pheromone evaporate per iteration
-ITERATION_NUM = 100
+ITERATION_NUM = 1500
 INI_PHEROMONE_LEVEL = 0.2
 counter = 0
+ALPHA = 10
+BETA = 7.5
 
 ant = Ant('Karolina')
 city_colony = create_cities(INI_PHEROMONE_LEVEL)

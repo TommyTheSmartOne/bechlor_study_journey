@@ -91,7 +91,6 @@ def cross_entropy_loss(y_true, y_pred):
 
 '''
 The following function is used to find the weights and bias for our model.
-It follows the steps outlined in the assingment instructions.
 '''
 
 
