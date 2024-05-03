@@ -22,7 +22,7 @@ from tqdm import tqdm
 import re as re
 import sys
 
-def data_process_for_42_cities(np_two_D_array):
+def data_process(np_two_D_array):
     result_array = []
     for sub_np_array in np_two_D_array:
         sub_np_array = re.split('\s+', sub_np_array[0])
@@ -174,9 +174,9 @@ def compare_iterations():
 # Here input the data of cities, for the format of the data see example "distance_of_5_cities"
 # df = np.array(pd.read_csv("distance_of_42_cities.csv"))
 # df = randomly_generate_cities(50)
-# df = data_process_for_42_cities(df)
-df = np.array(pd.read_csv("distance_of_5_cities.csv"))
-
+# df = data_process_for(df)
+df = np.array(pd.read_csv("distance_of_26_cities.csv"))
+df = data_process(df)
 
 # constant term
 PHEROMONE_ANT_RELEASED = 1
