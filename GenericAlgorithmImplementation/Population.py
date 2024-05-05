@@ -35,7 +35,7 @@ class Population:
         :return:
         '''
         for i in range(self.size):
-            self.population[i] = self.shuffle_and_return(self.cities.copy())  # shuffle the route and append them in
+            self.population[i] = list(self.shuffle_and_return(self.cities.copy()))  # shuffle the route and append them in
             # the population.Thus each individual in the population is a solution
 
     def cross_over(self):
@@ -43,20 +43,27 @@ class Population:
         This function will perform a cross over operations. That is
         :return:
         '''
-        pbar = tqdm(total=len(self.population))
+
+        num_of_cross_over = math.ceil(self.size / 2)
+        pbar = tqdm(total=num_of_cross_over)
         counter = 0
-        while counter < self.size:
+        while counter < num_of_cross_over:
             pbar.update(1)
             parent_list = []
-            children = []
             for j in range(2):  # since there exists 2 individuals in a group of parents
                 index_for_individuals_that_is_parent = np.random.randint(0, len(self.population))
                 parent_list.append(index_for_individuals_that_is_parent)
-            for k in range(self.index_for_apply_cross_over):
-                children = self.population[parent_list[0]].copy()
-                children[k] = self.population[parent_list[1]][k]
-            self.population.append(children)  # append children back to the population
+
+            children = self.population[parent_list[0]].copy()
+            children = self.population[parent_list[1]][:self.index_for_apply_cross_over] + children # merge the part need
+            # apply cross over with parent_list index 0
+            temp = []
+            [temp.append(x) for x in children if x not in temp]  # remove the duplicate part in the merged list(preserve
+            # the first occurrence)
+            self.population.append(temp)  # append children back to the population
+            self.size += 1
             counter += 1
+        pbar.close()
 
     def fitness(self, df: [[]]):
         '''
@@ -66,13 +73,16 @@ class Population:
         # Since we are resolving TSP, the fitness value would be the total distance
         for i in range(self.size):
             temp = 0
-            for j in range(self.population[i].size):
+            for j in range(len(self.population[i])):
                 temp += df[self.population[i][j]][self.population[i][j - 1]]
             self.fitness_value[i] = temp  # !!!!!!Important, after every epoch we must clear this dictionary
             if temp < list(self.most_fit_route.keys())[-1]:  # if the new fittest route distance is smaller than the old
                 # distance
                 # self.most_fit_route.clear()  # clear the old fittest route
                 self.most_fit_route[temp] = self.population[i]  # append the new fittest route
+        self.fitness_value = {k: v for k, v in
+                              sorted(self.fitness_value.items(), key=lambda item: item[1])}  # sort the population
+        # in ascending order based on the distance
 
     def mutate(self):
         '''
@@ -87,7 +97,7 @@ class Population:
                     j]  # Since this implementation is specify on TSP, we must not just simply flip
                 # a digits like what normal generic algorithm does(Since in TSP each city must only be travel once).
                 # We can perform a swap with some random indices.
-                index_being_swap = np.random.randint(self.population[index_of_individual_to_apply_mutate].size)
+                index_being_swap = np.random.randint(len(self.population[index_of_individual_to_apply_mutate]))
                 self.population[index_of_individual_to_apply_mutate][j] = \
                     self.population[index_of_individual_to_apply_mutate][
                         index_being_swap]  # generate a random index in the same
@@ -100,12 +110,12 @@ class Population:
         values, the number of individual to deprecate is dependent on the deprecation percentage
         :return:
         '''
-        self.fitness_value = {k: v for k, v in
-                              sorted(self.fitness_value.items(), key=lambda item: item[1])}  # sort the population
-        # in ascending order based on the distance
+
         route_being_deleted = list(self.fitness_value.keys())[
                               math.floor(self.size - self.size * self.deprecation_percentage): self.size]
+        print(len(self.population))
         self.size -= len(route_being_deleted)
         for route_index in route_being_deleted:
-            self.fitness_value.pop(route_index) # delete the fitness value along with the route in the population.
-            self.population.pop(route_index)
+            self.fitness_value.pop(route_index)  # delete the fitness value along with the route in the population.
+        route_being_deleted = set(route_being_deleted)
+        self.population = [item for idx, item in enumerate(self.population) if idx not in route_being_deleted]
