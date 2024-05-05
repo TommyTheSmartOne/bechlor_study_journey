@@ -10,8 +10,12 @@ for i in range(len(df[0])):
 cities = np.array(cities)
 
 
-population = Population(cities, 100, 2)
+population = Population(cities, 100, 2, 0, 1, 2, 0.6)
 population.initialize()
 population.cross_over()
 population.fitness(df)
-print(population.fitness_value)
+population.mutate()
+population.deprecate_population()
+# print(population.fitness_value)
+# print(population.most_fit_route)
+
