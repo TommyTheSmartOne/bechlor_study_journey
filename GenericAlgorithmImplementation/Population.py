@@ -11,7 +11,7 @@ import math
 class Population:
     def __init__(self, cities: np.ndarray, size: int, start_index_for_apply_cross_over: int,
                  end_index_for_apply_cross_over: int, start_index_for_apply_mutate: int
-                 , end_index_for_apply_mutate: int, deprecation_percentage: float):
+                 , end_index_for_apply_mutate: int, deprecation_percentage: float, mutation_rate: float):
         self.size = size
         self.cities = cities
         self.most_fit_route = {
@@ -25,6 +25,7 @@ class Population:
         self.start_index_for_apply_mutate = start_index_for_apply_mutate
         self.end_index_for_apply_mutate = end_index_for_apply_mutate
         self.deprecation_percentage = deprecation_percentage
+        self.mutation_rate = mutation_rate
 
     def shuffle_and_return(self, np_arr):
         np.random.shuffle(np_arr)
@@ -130,7 +131,7 @@ class Population:
         the objective is only for a very small set of cities, we won't apply mutation.
         :return:
         '''
-        for i in range(math.floor(self.size * 0.001)):
+        for i in range(math.floor(self.size * self.mutation_rate)):
             index_of_individual_to_apply_mutate = np.random.randint(self.size)
             for j in range(self.start_index_for_apply_mutate, self.end_index_for_apply_mutate):
                 temp = self.population[index_of_individual_to_apply_mutate][
