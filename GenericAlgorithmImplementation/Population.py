@@ -9,8 +9,9 @@ import math
 
 
 class Population:
-    def __init__(self, cities: np.ndarray, size: int, index_for_apply_cross_over: int, start_index_for_apply_mutate: int
-                 , end_index_for_apply_mutate: int, number_of_mutation_per_epoch: int, deprecation_percentage: float):
+    def __init__(self, cities: np.ndarray, size: int, start_index_for_apply_cross_over: int,
+                 end_index_for_apply_cross_over: int, start_index_for_apply_mutate: int
+                 , end_index_for_apply_mutate: int, deprecation_percentage: float):
         self.size = size
         self.cities = cities
         self.most_fit_route = {
@@ -18,11 +19,11 @@ class Population:
         # the value being the route(a list)
         self.fitness_value = {}  # this is a dictionary contains key is the index for the population and the value is
         # the fitness value
-        self.population = [None] * size
-        self.index_for_apply_cross_over = index_for_apply_cross_over
+        self.population = [0] * size
+        self.start_index_for_apply_cross_over = start_index_for_apply_cross_over
+        self.end_index_for_apply_cross_over = end_index_for_apply_cross_over
         self.start_index_for_apply_mutate = start_index_for_apply_mutate
         self.end_index_for_apply_mutate = end_index_for_apply_mutate
-        self.number_of_mutation_per_epoch = number_of_mutation_per_epoch
         self.deprecation_percentage = deprecation_percentage
 
     def shuffle_and_return(self, np_arr):
@@ -35,32 +36,70 @@ class Population:
         :return:
         '''
         for i in range(self.size):
-            self.population[i] = list(self.shuffle_and_return(self.cities.copy()))  # shuffle the route and append them in
+            self.population[i] = list(
+                self.shuffle_and_return(self.cities.copy()))  # shuffle the route and append them in
+            self.population[i].append(self.population[i][0])  # For TSP we need to go back to the original route
             # the population.Thus each individual in the population is a solution
 
-    def cross_over(self):
+    def partially_mapped_cross_over(self):
         '''
         This function will perform a cross over operations. That is
         :return:
         '''
 
-        num_of_cross_over = math.ceil(self.size / 2)
-        pbar = tqdm(total=num_of_cross_over)
+        odd_size = int(self.size // 2)
+        pbar = tqdm(total=odd_size)
         counter = 0
-        while counter < num_of_cross_over:
+        while counter < odd_size:
             pbar.update(1)
             parent_list = []
             for j in range(2):  # since there exists 2 individuals in a group of parents
                 index_for_individuals_that_is_parent = np.random.randint(0, len(self.population))
                 parent_list.append(index_for_individuals_that_is_parent)
 
-            children = self.population[parent_list[0]].copy()
-            children = self.population[parent_list[1]][:self.index_for_apply_cross_over] + children # merge the part need
-            # apply cross over with parent_list index 0
-            temp = []
-            [temp.append(x) for x in children if x not in temp]  # remove the duplicate part in the merged list(preserve
-            # the first occurrence)
-            self.population.append(temp)  # append children back to the population
+            children = [0] * (len(self.cities) + 1)
+
+            for cities_in_children in range(self.start_index_for_apply_cross_over, self.end_index_for_apply_cross_over):
+                children[cities_in_children] = self.population[parent_list[0]][cities_in_children]  # First append the
+                # part we need to apply crossover.
+                if self.population[parent_list[1]][cities_in_children] in self.population[parent_list[0]][
+                                                                          self.start_index_for_apply_cross_over: self.end_index_for_apply_cross_over]:
+                    continue
+                    # the if statement will check if the value in cross over part in parent 1 is also
+                    # appears in parent 0. if so we can skip this element since we just/will append this element to
+                    # children
+
+
+                index_for_cities_in_parent_1 = self.population[parent_list[1]].index(children[cities_in_children])
+                # allocate the cities index in parent list 1. Since this index has been occupied in the previous
+                # line of code. We now have to append the same index in parent list 1 to children by mapping.
+                while index_for_cities_in_parent_1 in range(self.start_index_for_apply_cross_over,
+                                                            self.end_index_for_apply_cross_over):
+                    index_for_cities_in_parent_1 = self.population[parent_list[1]].index(
+                        self.population[parent_list[0]][index_for_cities_in_parent_1])
+
+                children[index_for_cities_in_parent_1] = self.population[parent_list[1]][cities_in_children]
+                # here is a more specific example: say the part we are applying cross over is the middle list:
+                # parent 0: [ 0, 1, 2, 3, [5, 7, 16, 9, 10], 4, 6, 8, 11]
+                # parent 1: [ 2, 3, 6, 5, [1, 16, 8, 4, 11], 7, 9, 10, 0]
+                # We first append all the cross over part in parent
+                # 0 into the children. We will now notice the index for cross over in parent 1 has been occupied. we
+                # now perform partial mapping. for every index that's been occupied, we find the index of the same
+                # value in the rest part of parent 1(this index must be somewhere else instead in the cross over part.
+                # unless for the value is equal). We then append this value to the children with the index we just
+                # allocated. for instance. in parent 1, the first value is 1, but the index has already been occupied
+                # now we go to the corresponding index in parent 0. which is 5, we then allocate the index of value 5 in
+                # parent 1, which is 3. now in children index 3 we can append value 1... etc. In the end, we will obtain
+                # a children with length 2 * len(part_apply_cross_over). we then just need to append the rest of parent
+                # list 1 to the children with the same index. There is 2 special conditions which is why we have the if
+                # statement and the while loop. however we can skip the explanation since it is too complex
+
+            for remaining_cities_index in range(len(self.cities)):
+                if self.population[parent_list[1]][remaining_cities_index] not in children:
+                    children[remaining_cities_index] = self.population[parent_list[1]][remaining_cities_index]
+            children[len(self.cities)] = children[0]
+
+            self.population.append(children)  # append children back to the population
             self.size += 1
             counter += 1
         pbar.close()
@@ -73,12 +112,13 @@ class Population:
         # Since we are resolving TSP, the fitness value would be the total distance
         for i in range(self.size):
             temp = 0
-            for j in range(len(self.population[i])):
-                temp += df[self.population[i][j]][self.population[i][j - 1]]
+            for j in range(len(self.population[i]) - 1): # since last one is the original city, the distance between the
+                # original city to itself is 0 so we don't have to worry about it
+                temp += df[self.population[i][j]][self.population[i][j + 1]]
             self.fitness_value[i] = temp  # !!!!!!Important, after every epoch we must clear this dictionary
             if temp < list(self.most_fit_route.keys())[-1]:  # if the new fittest route distance is smaller than the old
                 # distance
-                # self.most_fit_route.clear()  # clear the old fittest route
+                self.most_fit_route.clear()  # clear the old fittest route
                 self.most_fit_route[temp] = self.population[i]  # append the new fittest route
         self.fitness_value = {k: v for k, v in
                               sorted(self.fitness_value.items(), key=lambda item: item[1])}  # sort the population
@@ -90,19 +130,21 @@ class Population:
         the objective is only for a very small set of cities, we won't apply mutation.
         :return:
         '''
-        for i in range(self.number_of_mutation_per_epoch):
+        for i in range(math.floor(self.size * 0.001)):
             index_of_individual_to_apply_mutate = np.random.randint(self.size)
             for j in range(self.start_index_for_apply_mutate, self.end_index_for_apply_mutate):
                 temp = self.population[index_of_individual_to_apply_mutate][
                     j]  # Since this implementation is specify on TSP, we must not just simply flip
                 # a digits like what normal generic algorithm does(Since in TSP each city must only be travel once).
                 # We can perform a swap with some random indices.
-                index_being_swap = np.random.randint(len(self.population[index_of_individual_to_apply_mutate]))
+                index_being_swap = np.random.randint(len(self.population[index_of_individual_to_apply_mutate]) - 1)
+                # excluding the last digit
                 self.population[index_of_individual_to_apply_mutate][j] = \
                     self.population[index_of_individual_to_apply_mutate][
                         index_being_swap]  # generate a random index in the same
                 # individual gene(city route) to swap.
                 self.population[index_of_individual_to_apply_mutate][index_being_swap] = temp
+            self.population[index_of_individual_to_apply_mutate][-1] = self.population[index_of_individual_to_apply_mutate][0]
 
     def deprecate_population(self):
         '''
@@ -113,9 +155,9 @@ class Population:
 
         route_being_deleted = list(self.fitness_value.keys())[
                               math.floor(self.size - self.size * self.deprecation_percentage): self.size]
-        print(len(self.population))
         self.size -= len(route_being_deleted)
         for route_index in route_being_deleted:
             self.fitness_value.pop(route_index)  # delete the fitness value along with the route in the population.
         route_being_deleted = set(route_being_deleted)
+
         self.population = [item for idx, item in enumerate(self.population) if idx not in route_being_deleted]

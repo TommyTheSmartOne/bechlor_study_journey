@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\GenericAlgorithmImplementation\distance_of_26_cities.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\GenericAlgorithmImplementation\distance_of_5_cities.csv">
           <value>
             <Attribute>
