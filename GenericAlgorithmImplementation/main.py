@@ -44,11 +44,11 @@ cities = np.array(cities)
 
 
 #  Parameters for the algorithm
-POPULATION_SIZE = 500000
+POPULATION_SIZE = 1000000
 START_INDEX_FOR_CROSS_OVER = 10
 END_INDEX_FOR_CROSS_OVER = 16
 START_INDEX_FOR_MUTATE = 4
-END_INDEX_FOR_MUTATE = 10
+END_INDEX_FOR_MUTATE = 8
 DEPRECATION_PERCENTAGE = 0.5
 MUTATION_RATE = 0.001
 
@@ -60,10 +60,11 @@ population = Population(cities, POPULATION_SIZE, START_INDEX_FOR_CROSS_OVER, END
 
 def main():
     population.initialize()
-    while population.size > 1000:
+    while population.size > 10:
         population.fitness(df)
         population.deprecate_population()
         population.partially_mapped_cross_over()
+        population.fitness_value.clear()
         population.mutate()
         print(population.size)
         print(population.most_fit_route)
