@@ -11,8 +11,7 @@ from Individual import *
 
 class Population:
     def __init__(self, cities: np.ndarray, size: int, start_index_for_apply_cross_over: int,
-                 end_index_for_apply_cross_over: int, start_index_for_apply_mutate: int
-                 , end_index_for_apply_mutate: int, deprecation_percentage: float, mutation_rate: float):
+                 end_index_for_apply_cross_over: int, deprecation_percentage: float, mutation_rate: float):
         self.size = size
         self.cities = cities
         self.most_fit_route = {
@@ -23,8 +22,6 @@ class Population:
         self.population = [0] * size
         self.start_index_for_apply_cross_over = start_index_for_apply_cross_over
         self.end_index_for_apply_cross_over = end_index_for_apply_cross_over
-        self.start_index_for_apply_mutate = start_index_for_apply_mutate
-        self.end_index_for_apply_mutate = end_index_for_apply_mutate
         self.deprecation_percentage = deprecation_percentage
         self.mutation_rate = mutation_rate
 
@@ -42,26 +39,29 @@ class Population:
                 self.shuffle_and_return(self.cities.copy())))  # shuffle the route and append them in
             self.population[i].route.append(self.population[i].route[0])  # For TSP we need to go back to the original route
             # the population.Thus each individual in the population is a solution
-        # print(len(self.population))
-        # print(self.size)
+
+
     def partially_mapped_cross_over(self):
         '''
         This function will perform a cross over operations. That is
         :return:
         '''
-
         odd_size = int(self.size // 2)
         pbar = tqdm(total=odd_size)
         counter = 0
         while counter < odd_size:
             pbar.update(1)
             parent_list = []
+
+            children = Individual([0] * (len(self.cities) + 1))  # initialize a children object
+
             for j in range(2):  # since there exists 2 individuals in a group of parents
                 index_for_individuals_that_is_parent = np.random.randint(0, len(self.population))
                 parent_list.append(index_for_individuals_that_is_parent)
-                self.population[index_for_individuals_that_is_parent].update_is_parent()
+                self.population[index_for_individuals_that_is_parent].update_children(children.route)
 
-            children = Individual([0] * (len(self.cities) + 1)) # initialize a children object
+
+            children.update_parents(self.population[parent_list[0]], self.population[parent_list[1]])
 
             for cities_in_children in range(self.start_index_for_apply_cross_over, self.end_index_for_apply_cross_over):
                 children.route[cities_in_children] = self.population[parent_list[0]].route[cities_in_children]  # First append the
@@ -137,9 +137,11 @@ class Population:
         the objective is only for a very small set of cities, we won't apply mutation.
         :return:
         '''
-        for i in range(math.floor(self.size * self.mutation_rate)):
+        for i in range(math.ceil(self.size * self.mutation_rate)):
             index_of_individual_to_apply_mutate = np.random.randint(self.size)
-            for j in range(self.start_index_for_apply_mutate, self.end_index_for_apply_mutate):
+            self.population[index_of_individual_to_apply_mutate].update_is_mutate()
+            for j in range(np.random.randint(len(self.population[index_of_individual_to_apply_mutate].route)),
+                           np.random.randint(len(self.population[index_of_individual_to_apply_mutate].route))):
                 temp = self.population[index_of_individual_to_apply_mutate].route[
                     j]  # Since this implementation is specify on TSP, we must not just simply flip
                 # a digits like what normal generic algorithm does(Since in TSP each city must only be travel once).
@@ -162,9 +164,9 @@ class Population:
 
         route_being_deleted = list(self.fitness_value.keys())[
                               math.floor(self.size - self.size * self.deprecation_percentage): self.size]
-        # obtain the further back indices based on the deprecation_percentage. These are the route/individual we will delete
-        # since we sorted in ascending orders. Indicating the further back it is the 'less' fit it is(since the distance
-        # would be longer)
+        # obtain the further back indices based on the deprecation_percentage. These are the route/individual we will
+        # delete since we sorted in ascending orders. Indicating the further back it is the 'less' fit it is(since
+        # the distance would be longer)
         self.size -= len(route_being_deleted)
         for route_index in route_being_deleted:
             self.fitness_value.pop(route_index)  # delete the fitness value along with the route in the population.

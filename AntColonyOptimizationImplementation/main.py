@@ -172,10 +172,10 @@ def compare_iterations():
 
 
 # Here input the data of cities, for the format of the data see example "distance_of_5_cities"
-# df = np.array(pd.read_csv("distance_of_42_cities.csv"))
+# df = np.array(pd.read_csv("distance_of_42_cities.csv")) # minimum 699
 # df = randomly_generate_cities(50)
 # df = data_process_for(df)
-df = np.array(pd.read_csv("distance_of_26_cities.csv"))
+df = np.array(pd.read_csv("distance_of_26_cities.csv")) # minimum 937
 df = data_process(df)
 
 # constant term

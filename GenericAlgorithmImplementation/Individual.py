@@ -29,7 +29,7 @@ class Individual:
         self.is_parent = True
 
     def update_is_child(self):
-        self.is_parent = True
+        self.is_child = True
 
     def update_is_mutate(self):
         self.is_mutated = True
