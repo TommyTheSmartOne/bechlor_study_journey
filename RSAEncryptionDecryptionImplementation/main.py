@@ -3,6 +3,9 @@ This file is the main such that calls methods from encryption and decryption to 
 '''
 from tqdm import tqdm
 import numpy as np
+from Encryption import *
+from Decryption import *
+
 
 def sieve_of_Eratosthenes(termination_index: int):
     '''
@@ -28,9 +31,14 @@ def sieve_of_Eratosthenes(termination_index: int):
 
 
 def p_q_generator():
+    '''
+    This generator will generate 2 prime number
+    :return:
+    '''
     counter = 0
-    for prime_number in sieve_of_Eratosthenes(100000):
-        if np.random.rand() < 0.001 and counter != 2:
+    for prime_number in sieve_of_Eratosthenes(100000): # call sieve_of_Eratosthenes generator to allocate all the prime
+        # within the given limits
+        if np.random.rand() < 0.001 and counter != 2:  # we only need 2 prime number
             yield prime_number
             counter += 1
         elif counter == 2:
@@ -38,10 +46,19 @@ def p_q_generator():
 
 
 def prime_generator():
+    '''
+    This function is for calling p_q_generator
+    :return:
+    '''
     for i in p_q_generator():
         print(i)
 
 
 p = 24107
 q = 29101
+message = 2
+
+encoder = Encryption(p, q)
+print(encoder.encrypt(2))
+decoder = Decryption()
 
