@@ -36,29 +36,24 @@ def p_q_generator():
     :return:
     '''
     counter = 0
+    result = []
     for prime_number in sieve_of_Eratosthenes(100000): # call sieve_of_Eratosthenes generator to allocate all the prime
         # within the given limits
         if np.random.rand() < 0.001 and counter != 2:  # we only need 2 prime number
-            yield prime_number
+            result.append(prime_number)
             counter += 1
-        elif counter == 2:
-            return
+            if counter == 2:
+                return result[0], result[1]
 
 
-def prime_generator():
-    '''
-    This function is for calling p_q_generator
-    :return:
-    '''
-    for i in p_q_generator():
-        print(i)
 
 
-p = 24107
-q = 29101
+p, q = p_q_generator()
 message = 2
 
 encoder = Encryption(p, q)
-print(encoder.encrypt(2))
-decoder = Decryption()
-
+public_key, cipher_text, phi = encoder.encrypt(2)
+# Note in real world scenario phi is not public. Since here we will need to use e to calculate the key for decryption
+# and thus we will just show.
+decoder = Decryption(public_key, cipher_text, phi)
+decrypted_message = decoder.decrypt()
