@@ -3,6 +3,27 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="C:\Users\24300\AppData\Local\Temp\MicrosoftEdgeDownloads\2c07417e-1ccd-49e9-a959-62b66583cda8\FormattedDistanceMatrix.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FloyedWarshallImplementation\distance_of_10_cities.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FloyedWarshallImplementation\distance_of_5_cities.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\GenericAlgorithmImplementation\distance_of_26_cities.csv">
           <value>
             <Attribute>
