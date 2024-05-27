@@ -168,8 +168,8 @@ def compress_image():
 
 
 #  Constant initialization and function call
-image_arr = preprocess_data("lion.png")
+image_arr = preprocess_data("bird.png")
 NUM_OF_ITERATION = 2
-NUM_OF_CENTROID = 2
+NUM_OF_CENTROID = 10
 final_centroid_index_pair, final_centroid = run_kMean()
 compress_image()
