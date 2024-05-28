@@ -82,4 +82,5 @@ def main():
 
 
 main()
-print(matrix)
+matrix = pd.DataFrame(matrix)
+print(matrix.to_string(index=False))
