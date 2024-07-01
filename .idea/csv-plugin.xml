@@ -3,21 +3,14 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="C:\Users\24300\AppData\Local\Temp\MicrosoftEdgeDownloads\7c7658a8-039b-42bd-b646-8cc5dbaa15c5\Bidirectional_Graph_Distances.csv">
+        <entry key="\AntColonyOptimizationImplementation\distance_of_26_cities.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\DijkstraAlgorithmImplementation\distance_of_10_cities.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\DijkstraAlgorithmImplementation\distance_of_6_cities.csv">
+        <entry key="\AntColonyOptimizationImplementation\distance_of_42_cities.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
